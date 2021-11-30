@@ -1,0 +1,101 @@
+{
+	"name": "CosmosDbSqlApiCollection1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "lmt_cosmos_uat",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "CosmosDbSqlApiCollection",
+		"schema": {
+			"type": "object",
+			"properties": {
+				"labor": {
+					"type": "object",
+					"properties": {
+						"laborId": {
+							"type": "string"
+						},
+						"laborDate": {
+							"type": "string"
+						},
+						"laborHours": {
+							"type": "string"
+						},
+						"laborTimeZoneId": {
+							"type": "integer"
+						},
+						"laborCategoryId": {
+							"type": "integer"
+						},
+						"submittedFor": {
+							"type": "string"
+						},
+						"submittedBy": {
+							"type": "string"
+						},
+						"submittedDateInUtc": {
+							"type": "string"
+						},
+						"laborNotes": {
+							"type": "string"
+						},
+						"laborStatus": {
+							"type": "string"
+						},
+						"partner": {
+							"type": "string"
+						},
+						"userActionId": {
+							"type": "string"
+						},
+						"assignmentDetails": {
+							"type": "object",
+							"properties": {
+								"assignmentId": {
+									"type": "string"
+								},
+								"isBillable": {
+									"type": "boolean"
+								},
+								"assignmentName": {
+									"type": "string"
+								},
+								"engagementName": {
+									"type": "string"
+								},
+								"customerName": {
+									"type": "string"
+								},
+								"caseId": {
+									"type": "string"
+								}
+							}
+						},
+						"approvalDetails": {
+							"type": "object",
+							"properties": {
+								"assignedApprover": {
+									"type": "string"
+								}
+							}
+						},
+						"updatedBy": {
+							"type": "string"
+						},
+						"updatedDateTimeInUtc": {
+							"type": "string"
+						},
+						"version": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		},
+		"typeProperties": {
+			"collectionName": "LaborTransactionAudit"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

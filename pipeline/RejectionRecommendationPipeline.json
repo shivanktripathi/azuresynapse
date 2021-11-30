@@ -1,0 +1,57 @@
+{
+	"name": "RejectionRecommendationPipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "UpdateRejectionRecommendationData",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "RejectionRecommendationData",
+						"type": "NotebookReference"
+					},
+					"snapshot": true
+				}
+			},
+			{
+				"name": "RebuildIndex",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "UpdateRejectionRecommendationData",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "RebuildIndex",
+						"type": "NotebookReference"
+					},
+					"snapshot": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-11-29T06:44:06Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

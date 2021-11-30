@@ -1,0 +1,258 @@
+{
+	"name": "RejectionRecommendationData",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "TestPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "00696ff1-c5bb-43b3-9010-d68b573bd896"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_spark",
+				"display_name": "scala"
+			},
+			"language_info": {
+				"name": "scala"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
+				"name": "TestPool",
+				"type": "Spark",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			}
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"Drop TABLE IF EXISTS tbl_LaborTransactionAudit;\r\n",
+					"CREATE TABLE tbl_LaborTransactionAudit USING cosmos.olap OPTIONS (\r\n",
+					"\tspark.synapse.linkedService 'lmt_cosmos_prod'\r\n",
+					"\t,spark.cosmos.container 'LaborTransactionAudit'\r\n",
+					"\t)"
+				],
+				"attachments": null,
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\",\"\")"
+				],
+				"attachments": null,
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"var df = spark.sql(\"\"\"WITH RejectionCTE\r\n",
+					"AS (\r\n",
+					"\tSELECT (labor.approvalDetails.actualApprover) AS ActualApprover\r\n",
+					"\t\t,(labor.partner) AS Partner\r\n",
+					"\t\t,(labor.assignmentDetails.customerName) AS CustomerName\r\n",
+					"\t\t,CASE \r\n",
+					"\t\t\tWHEN labor.laborNotes = ''\r\n",
+					"\t\t\t\tTHEN 'No'\r\n",
+					"\t\t\tELSE 'Yes'\r\n",
+					"\t\t\tEND AS NotesPresent\r\n",
+					"\t\t,CASE \r\n",
+					"\t\t\tWHEN (\r\n",
+					"\t\t\t\t\t(\r\n",
+					"\t\t\t\t\t\tlabor.actionDetails [0].actionType = 'Rejection'\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [1].actionType = 'Rejection'\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [2].actionType = 'Rejection'\r\n",
+					"\t\t\t\t\t\t)\r\n",
+					"\t\t\t\t\tAND (\r\n",
+					"\t\t\t\t\t\tlabor.actionDetails [0].reasonId = 333031\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [1].reasonId = 333031\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [2].reasonId = 333031\r\n",
+					"\t\t\t\t\t\t)\r\n",
+					"\t\t\t\t\t)\r\n",
+					"\t\t\t\tTHEN 'Rejected'\r\n",
+					"\t\t\tELSE 'Approved'\r\n",
+					"\t\t\tEND AS ApprovedRejected\r\n",
+					"\t\t,Count(*) AS Count\r\n",
+					"\tFROM tbl_LaborTransactionAudit\r\n",
+					"\tWHERE labor.laborDate > ADD_MONTHS(CURRENT_DATE(), -3)\r\n",
+					"\t\tAND labor.laborNotes = ''\r\n",
+					"\t\tAND labor.partner = 'aurora'\r\n",
+					"\t\tAND labor.laborStatus NOT IN (\r\n",
+					"\t\t\t'Submitted'\r\n",
+					"\t\t\t,'Deleted'\r\n",
+					"\t\t\t)\r\n",
+					"\tGROUP BY (labor.approvalDetails.actualApprover)\r\n",
+					"\t\t,(labor.assignmentDetails.customerName)\r\n",
+					"\t\t,(labor.partner)\r\n",
+					"\t\t,CASE \r\n",
+					"\t\t\tWHEN labor.laborNotes = ''\r\n",
+					"\t\t\t\tTHEN 'No'\r\n",
+					"\t\t\tELSE 'Yes'\r\n",
+					"\t\t\tEND\r\n",
+					"\t\t,CASE \r\n",
+					"\t\t\tWHEN (\r\n",
+					"\t\t\t\t\t(\r\n",
+					"\t\t\t\t\t\tlabor.actionDetails [0].actionType = 'Rejection'\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [1].actionType = 'Rejection'\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [2].actionType = 'Rejection'\r\n",
+					"\t\t\t\t\t\t)\r\n",
+					"\t\t\t\t\tAND (\r\n",
+					"\t\t\t\t\t\tlabor.actionDetails [0].reasonId = 333031\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [1].reasonId = 333031\r\n",
+					"\t\t\t\t\t\tOR labor.actionDetails [2].reasonId = 333031\r\n",
+					"\t\t\t\t\t\t)\r\n",
+					"\t\t\t\t\t)\r\n",
+					"\t\t\t\tTHEN 'Rejected'\r\n",
+					"\t\t\tELSE 'Approved'\r\n",
+					"\t\t\tEND\r\n",
+					"\t)\r\n",
+					"\t,FilteredRejectionApproved\r\n",
+					"AS (\r\n",
+					"\tSELECT ActualApprover\r\n",
+					"\t\t,Partner\r\n",
+					"\t\t,CustomerName\r\n",
+					"\tFROM RejectionCTE\r\n",
+					"\tGROUP BY ActualApprover\r\n",
+					"\t\t,Partner\r\n",
+					"\t\t,CustomerName\r\n",
+					"\tHAVING COUNT(1) > 1\r\n",
+					"\t)\r\n",
+					"\t,FinalFilter\r\n",
+					"AS (\r\n",
+					"\tSELECT R.*\r\n",
+					"\tFROM RejectionCTE R\r\n",
+					"\tLEFT JOIN FilteredRejectionApproved F ON R.ActualApprover = F.ActualApprover\r\n",
+					"\t\tAND R.Partner = F.Partner\r\n",
+					"\t\tAND R.CustomerName = F.CustomerName\r\n",
+					"\tWHERE R.ActualApprover IS NOT NULL\r\n",
+					"\t\tAND F.ActualApprover IS NULL\r\n",
+					"\t)\r\n",
+					"\t,CalculatedRejection\r\n",
+					"AS (\r\n",
+					"\tSELECT R.ActualApprover\r\n",
+					"\t\t,R.Partner\r\n",
+					"\t\t,R.CustomerName\r\n",
+					"\t\t,R.NotesPresent\r\n",
+					"\t\t,Rejected\r\n",
+					"\t\t,Approved\r\n",
+					"\tFROM RejectionCTE AS R\r\n",
+					"\tJOIN FilteredRejectionApproved F ON R.ActualApprover = F.ActualApprover\r\n",
+					"\t\tAND R.Partner = F.Partner\r\n",
+					"\t\tAND R.CustomerName = F.CustomerName\r\n",
+					"\tPIVOT(SUM(R.Count) FOR ApprovedRejected IN (\r\n",
+					"\t\t\t\t'Approved'\r\n",
+					"\t\t\t\t,'Rejected'\r\n",
+					"\t\t\t\t))\r\n",
+					"\tWHERE Rejected * 100 / (Approved + Rejected) >= 20\r\n",
+					"\t)\r\n",
+					"SELECT UUID() AS Id\r\n",
+					"\t,LOWER(F.ActualApprover) AS ActualApprover\r\n",
+					"\t,F.Partner\r\n",
+					"\t,LOWER(F.CustomerName) AS CustomerName\r\n",
+					"\t,F.NotesPresent\t\r\n",
+					"\t,'Labor against similar assignments have seen a high rejection by approvers when submitted with no/insufficient labor notes.' AS Message\r\n",
+					"\t,current_timestamp() AS UpdatedDateTimeUTC\r\n",
+					"FROM FinalFilter F\r\n",
+					"WHERE ApprovedRejected = 'Rejected'\r\n",
+					"\r\n",
+					"UNION\r\n",
+					"\r\n",
+					"SELECT UUID() AS Id\r\n",
+					"\t,LOWER(ActualApprover) AS ActualApprover\r\n",
+					"\t,Partner\r\n",
+					"\t,LOWER(CustomerName) AS CustomerName\r\n",
+					"\t,NotesPresent\r\n",
+					"\t,'Labor against similar assignments have seen a high rejection by approvers when submitted with no/insufficient labor notes.' AS Message\r\n",
+					"\t,current_timestamp() AS UpdatedDateTimeUTC\r\n",
+					"FROM CalculatedRejection\"\"\")\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null,
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"val outputfile = \"wasbs://rejectedlaborrecommendation@lmtsalrscoreuateastus.blob.core.windows.net/\"  \r\n",
+					"var filename = \"rejectionInsights\"\r\n",
+					"var outputFileName = outputfile +  filename \r\n",
+					"\r\n",
+					"\r\n",
+					"df.coalesce(1).write.format(\"json\").option(\"header\", \"true\").mode(\"overwrite\").save(outputFileName)\r\n",
+					""
+				],
+				"attachments": null,
+				"execution_count": null
+			}
+		]
+	}
+}

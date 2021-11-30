@@ -1,0 +1,17 @@
+{
+	"name": "GDPR Query",
+	"properties": {
+		"content": {
+			"query": "SELECT Labor\nFROM OPENROWSET('CosmosDB',\n    'Account=lmt-cdba-core-uat-eastus;Database=lmt-cdb-core-uat;Key=VUqk2TMCpUPAF78eLyN6sJLuEGMEGDJ64pAtcRt0RijltkrDji7mQevxAMWSLl4sw7beHfpskGz7mMQOJtceTQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\n\nWHERE JSON_Value(Labor,'$.submittedFor') = 'daveb'\nAND JSON_Value(Labor,'$.laborDate') > '2021-02-15T00:00:00' \nAND JSON_Value(Labor,'$.laborDate') < '2021-08-15T00:00:00' \nORDER BY JSON_Value(Labor,'$.laborDate')",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "LaborTransactionAudit",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

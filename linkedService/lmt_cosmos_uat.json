@@ -1,0 +1,16 @@
+{
+	"name": "lmt_cosmos_uat",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "CosmosDb",
+		"typeProperties": {
+			"connectionString": "AccountEndpoint=https://lmt-cdba-core-uat-eastus.documents.azure.com:443/;Database=lmt-cdb-core-uat;",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkxBQk9STUFOR0VNRU5UU1lOQVBTRVBQRV85N2IyY2I2YS03NmQ0LTQ3NjMtOTAxZC00NDY4NjA5NmM4N2YiDQp9"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

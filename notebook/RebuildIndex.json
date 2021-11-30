@@ -1,0 +1,121 @@
+{
+	"name": "RebuildIndex",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "TestPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 4,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "4",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "75a0f124-6b3d-4127-858d-dc2fe9f55534"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_sparkdotnet",
+				"display_name": "csharp"
+			},
+			"language_info": {
+				"name": "csharp"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
+				"name": "TestPool",
+				"type": "Spark",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			}
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#r \"nuget: Microsoft.Azure.Search, 10.1.0\""
+				],
+				"attachments": null,
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"using Microsoft.Azure.Search;\r\n",
+					"using Microsoft.Azure.Search.Models;\r\n",
+					"using System;\r\n",
+					"using System.Collections.Generic;\r\n",
+					"using System.Linq;\r\n",
+					"\r\n",
+					"public static string searchServiceName = \"lmt-ass-core-uat-westus\";\r\n",
+					"public static string searchIndex = \"idx-rejectionrecommendation\";\r\n",
+					"public static string KeyCol = \"Id\";\r\n",
+					"public static string apiKey = \"\";\r\n",
+					"\r\n",
+					"while (true)\r\n",
+					"{\r\n",
+					"    SearchIndexClient indexClient = new SearchIndexClient(searchServiceName, searchIndex, new SearchCredentials(apiKey));\r\n",
+					"    DocumentSearchResult<Document> searchResult = indexClient.Documents.Search<Document>(string.Empty);\r\n",
+					"    List<string> azureDocsToDelete =\r\n",
+					"    searchResult\r\n",
+					"        .Results\r\n",
+					"        .Select(r => r.Document[KeyCol].ToString())\r\n",
+					"        .ToList();\r\n",
+					"    if (azureDocsToDelete.Count != 0)\r\n",
+					"    {\r\n",
+					"        try\r\n",
+					"        {\r\n",
+					"            var result = indexClient.Documents.Index(IndexBatch.Delete(KeyCol, azureDocsToDelete));\r\n",
+					"        }\r\n",
+					"        catch (IndexBatchException ex)\r\n",
+					"        {\r\n",
+					"            throw new Exception($\"Failed to reset the index: {string.Join(\", \", ex.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key))}\");\r\n",
+					"        }\r\n",
+					"    }\r\n",
+					"    else\r\n",
+					"    {\r\n",
+					"        break;\r\n",
+					"    }\r\n",
+					"    \r\n",
+					"}\r\n",
+					"\r\n",
+					"var serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(apiKey));\r\n",
+					"serviceClient.Indexers.Run(\"idxr-rejectionrecommendation\");            "
+				],
+				"attachments": null,
+				"execution_count": null
+			}
+		]
+	}
+}
