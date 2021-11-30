@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "labormangementsynapseppe"
+		},
+		"labormangementsynapseppe-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"lmt_cosmos_prod_connectionString": {
+			"value": ""
+		},
+		"lmt_cosmos_uat_connectionString": {
+			"value": ""
+		},
+		"labormangementsynapseppe-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://lmtsynapsedlppe.dfs.core.windows.net"
+		}
+	}
+}

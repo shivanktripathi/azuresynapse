@@ -1,0 +1,865 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Workspace name",
+			"defaultValue": "labormangementsynapseppe"
+		},
+		"labormangementsynapseppe-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'labormangementsynapseppe-WorkspaceDefaultSqlServer'"
+		},
+		"lmt_cosmos_prod_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'lmt_cosmos_prod'"
+		},
+		"lmt_cosmos_uat_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'lmt_cosmos_uat'"
+		},
+		"labormangementsynapseppe-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://lmtsynapsedlppe.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/RejectionRecommendationPipeline')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "UpdateRejectionRecommendationData",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "RejectionRecommendationData",
+								"type": "NotebookReference"
+							},
+							"snapshot": true
+						}
+					},
+					{
+						"name": "RebuildIndex",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "UpdateRejectionRecommendationData",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "RebuildIndex",
+								"type": "NotebookReference"
+							},
+							"snapshot": true
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-11-29T06:44:06Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/RejectionRecommendationData')]",
+				"[concat(variables('workspaceId'), '/notebooks/RebuildIndex')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CosmosDbSqlApiCollection1')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "lmt_cosmos_uat",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "CosmosDbSqlApiCollection",
+				"schema": {
+					"type": "object",
+					"properties": {
+						"labor": {
+							"type": "object",
+							"properties": {
+								"laborId": {
+									"type": "string"
+								},
+								"laborDate": {
+									"type": "string"
+								},
+								"laborHours": {
+									"type": "string"
+								},
+								"laborTimeZoneId": {
+									"type": "integer"
+								},
+								"laborCategoryId": {
+									"type": "integer"
+								},
+								"submittedFor": {
+									"type": "string"
+								},
+								"submittedBy": {
+									"type": "string"
+								},
+								"submittedDateInUtc": {
+									"type": "string"
+								},
+								"laborNotes": {
+									"type": "string"
+								},
+								"laborStatus": {
+									"type": "string"
+								},
+								"partner": {
+									"type": "string"
+								},
+								"userActionId": {
+									"type": "string"
+								},
+								"assignmentDetails": {
+									"type": "object",
+									"properties": {
+										"assignmentId": {
+											"type": "string"
+										},
+										"isBillable": {
+											"type": "boolean"
+										},
+										"assignmentName": {
+											"type": "string"
+										},
+										"engagementName": {
+											"type": "string"
+										},
+										"customerName": {
+											"type": "string"
+										},
+										"caseId": {
+											"type": "string"
+										}
+									}
+								},
+								"approvalDetails": {
+									"type": "object",
+									"properties": {
+										"assignedApprover": {
+											"type": "string"
+										}
+									}
+								},
+								"updatedBy": {
+									"type": "string"
+								},
+								"updatedDateTimeInUtc": {
+									"type": "string"
+								},
+								"version": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"typeProperties": {
+					"collectionName": "LaborTransactionAudit"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/lmt_cosmos_uat')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/labormangementsynapseppe-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('labormangementsynapseppe-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/labormangementsynapseppe-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('labormangementsynapseppe-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/lmt_cosmos_prod')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "CosmosDb",
+				"typeProperties": {
+					"connectionString": "[parameters('lmt_cosmos_prod_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/lmt_cosmos_uat')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "CosmosDb",
+				"typeProperties": {
+					"connectionString": "[parameters('lmt_cosmos_uat_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ScheduledRun')]",
+			"type": "Microsoft.Synapse/workspaces/triggers",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "RejectionRecommendationPipeline",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Week",
+						"interval": 1,
+						"startTime": "2021-11-30T00:00:00Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"weekDays": [
+								"Sunday"
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/RejectionRecommendationPipeline')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/GDPR Query')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT Labor\nFROM OPENROWSET('CosmosDB',\n    'Account=lmt-cdba-core-uat-eastus;Database=lmt-cdb-core-uat;Key=VUqk2TMCpUPAF78eLyN6sJLuEGMEGDJ64pAtcRt0RijltkrDji7mQevxAMWSLl4sw7beHfpskGz7mMQOJtceTQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\n\nWHERE JSON_Value(Labor,'$.submittedFor') = 'daveb'\nAND JSON_Value(Labor,'$.laborDate') > '2021-02-15T00:00:00' \nAND JSON_Value(Labor,'$.laborDate') < '2021-08-15T00:00:00' \nORDER BY JSON_Value(Labor,'$.laborDate')",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "LaborTransactionAudit",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/LaborByCustomerName')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT \nJSON_Value(Labor,'$.laborId') As LaborId, \nJSON_Value(Labor,'$.submittedFor') AS SubmittedFor, \nJSON_Value(Labor,'$.laborDate') AS LaborDate,\nJSON_Value(Labor,'$.laborHours') AS LaborHours,\nJSON_Value(Labor,'$.laborCategoryId') AS LaborCategoryId, \nJSON_Value(Labor,'$.laborTimeZoneId') AS LaborTimeZoneId,\nJSON_Value(Labor,'$.approvalDetails.actualApprover') AS ActualApprover,\nJSON_Value(Labor,'$.assignmentDetails.assignmentName') AS AssignmentName,\nJSON_Value(Labor,'$.assignmentDetails.customerName') AS CustomerName,\nJSON_Value(Labor,'$.partner') AS Partner\n\n\nFROM OPENROWSET('CosmosDB',\n'Account=lmt-cdba-core-uat-eastus;Database=lmt-cdb-core-uat;Key=VUqk2TMCpUPAF78eLyN6sJLuEGMEGDJ64pAtcRt0RijltkrDji7mQevxAMWSLl4sw7beHfpskGz7mMQOJtceTQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\n\nWHERE JSON_Value(Labor,'$.assignmentDetails.customerName') = N'PT Astra International Tbk'",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "LaborTransactionAudit",
+						"poolName": "Built-in"
+					},
+					"resultLimit": -1
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/LaborByLaborCategoryIdAndTzId')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT \nJSON_Value(Labor,'$.laborId') As LaborId, \nJSON_Value(Labor,'$.submittedFor') AS SubmittedFor, \nJSON_Value(Labor,'$.laborDate') AS LaborDate,\nJSON_Value(Labor,'$.laborHours') AS LaborHours,\nJSON_Value(Labor,'$.laborCategoryId') AS LaborCategoryId, \nJSON_Value(Labor,'$.laborTimeZoneId') AS LaborTimeZoneId,\nJSON_Value(Labor,'$.approvalDetails.actualApprover') AS ActualApprover,\nJSON_Value(Labor,'$.assignmentDetails.assignmentName') AS AssignmentName,\nJSON_Value(Labor,'$.assignmentDetails.customerName') AS CustomerName,\nJSON_Value(Labor,'$.partner') AS Partner\n\n\nFROM OPENROWSET('CosmosDB',\n'Account=lmt-cdba-core-uat-eastus;Database=lmt-cdb-core-uat;Key=VUqk2TMCpUPAF78eLyN6sJLuEGMEGDJ64pAtcRt0RijltkrDji7mQevxAMWSLl4sw7beHfpskGz7mMQOJtceTQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\n\nWHERE JSON_Value(Labor,'$.laborCategoryId') = 645481\nAND JSON_Value(Labor,'$.laborTimeZoneId') = 28",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "LaborTransactionAudit",
+						"poolName": "Built-in"
+					},
+					"resultLimit": -1
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/LaborSubmittedLate')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"content": {
+					"query": "SELECT \nJSON_Value(Labor,'$.laborId') As LaborId, \nJSON_Value(Labor,'$.submittedFor') AS SubmittedFor, \nJSON_Value(Labor,'$.laborDate') AS LaborDate,\nJSON_Value(Labor,'$.laborHours') AS LaborHours,\nJSON_Value(Labor,'$.laborCategoryId') AS LaborCategoryId, \nJSON_Value(Labor,'$.laborTimeZoneId') AS LaborTimeZoneId,\nJSON_Value(Labor,'$.approvalDetails.actualApprover') AS ActualApprover,\nJSON_Value(Labor,'$.assignmentDetails.assignmentName') AS AssignmentName,\nJSON_Value(Labor,'$.assignmentDetails.customerName') AS CustomerName,\nJSON_Value(Labor,'$.partner') AS Partner\n\nFROM OPENROWSET('CosmosDB',\n'Account=lmt-cdba-core-uat-eastus;Database=lmt-cdb-core-uat;Key=VUqk2TMCpUPAF78eLyN6sJLuEGMEGDJ64pAtcRt0RijltkrDji7mQevxAMWSLl4sw7beHfpskGz7mMQOJtceTQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\n\nWHERE JSON_Value(Labor,'$.actionDetails[0].actionType') = N'LateSubmission'\nOR    JSON_Value(Labor,'$.actionDetails[1].actionType') = N'LateSubmission'\nOR    JSON_Value(Labor,'$.actionDetails[2].actionType') = N'LateSubmission'    ",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "LaborTransactionAudit",
+						"poolName": "Built-in"
+					},
+					"resultLimit": -1
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/RebuildIndex')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "TestPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 4,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "4",
+						"spark.dynamicAllocation.maxExecutors": "4",
+						"spark.autotune.trackingId": "75a0f124-6b3d-4127-858d-dc2fe9f55534"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"synapse_widget": {
+						"version": "0.1"
+					},
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_sparkdotnet",
+						"display_name": "csharp"
+					},
+					"language_info": {
+						"name": "csharp"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
+						"name": "TestPool",
+						"type": "Spark",
+						"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.1",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					}
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"#r \"nuget: Microsoft.Azure.Search, 10.1.0\""
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"using Microsoft.Azure.Search;\r\n",
+							"using Microsoft.Azure.Search.Models;\r\n",
+							"using System;\r\n",
+							"using System.Collections.Generic;\r\n",
+							"using System.Linq;\r\n",
+							"\r\n",
+							"public static string searchServiceName = \"lmt-ass-core-uat-westus\";\r\n",
+							"public static string searchIndex = \"idx-rejectionrecommendation\";\r\n",
+							"public static string KeyCol = \"Id\";\r\n",
+							"public static string apiKey = \"\";\r\n",
+							"\r\n",
+							"while (true)\r\n",
+							"{\r\n",
+							"    SearchIndexClient indexClient = new SearchIndexClient(searchServiceName, searchIndex, new SearchCredentials(apiKey));\r\n",
+							"    DocumentSearchResult<Document> searchResult = indexClient.Documents.Search<Document>(string.Empty);\r\n",
+							"    List<string> azureDocsToDelete =\r\n",
+							"    searchResult\r\n",
+							"        .Results\r\n",
+							"        .Select(r => r.Document[KeyCol].ToString())\r\n",
+							"        .ToList();\r\n",
+							"    if (azureDocsToDelete.Count != 0)\r\n",
+							"    {\r\n",
+							"        try\r\n",
+							"        {\r\n",
+							"            var result = indexClient.Documents.Index(IndexBatch.Delete(KeyCol, azureDocsToDelete));\r\n",
+							"        }\r\n",
+							"        catch (IndexBatchException ex)\r\n",
+							"        {\r\n",
+							"            throw new Exception($\"Failed to reset the index: {string.Join(\", \", ex.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key))}\");\r\n",
+							"        }\r\n",
+							"    }\r\n",
+							"    else\r\n",
+							"    {\r\n",
+							"        break;\r\n",
+							"    }\r\n",
+							"    \r\n",
+							"}\r\n",
+							"\r\n",
+							"var serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(apiKey));\r\n",
+							"serviceClient.Indexers.Run(\"idxr-rejectionrecommendation\");            "
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/RejectionRecommendationData')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "TestPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "00696ff1-c5bb-43b3-9010-d68b573bd896"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"synapse_widget": {
+						"version": "0.1"
+					},
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_spark",
+						"display_name": "scala"
+					},
+					"language_info": {
+						"name": "scala"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
+						"name": "TestPool",
+						"type": "Spark",
+						"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.1",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					}
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"Drop TABLE IF EXISTS tbl_LaborTransactionAudit;\r\n",
+							"CREATE TABLE tbl_LaborTransactionAudit USING cosmos.olap OPTIONS (\r\n",
+							"\tspark.synapse.linkedService 'lmt_cosmos_prod'\r\n",
+							"\t,spark.cosmos.container 'LaborTransactionAudit'\r\n",
+							"\t)"
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\",\"\")"
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"var df = spark.sql(\"\"\"WITH RejectionCTE\r\n",
+							"AS (\r\n",
+							"\tSELECT (labor.approvalDetails.actualApprover) AS ActualApprover\r\n",
+							"\t\t,(labor.partner) AS Partner\r\n",
+							"\t\t,(labor.assignmentDetails.customerName) AS CustomerName\r\n",
+							"\t\t,CASE \r\n",
+							"\t\t\tWHEN labor.laborNotes = ''\r\n",
+							"\t\t\t\tTHEN 'No'\r\n",
+							"\t\t\tELSE 'Yes'\r\n",
+							"\t\t\tEND AS NotesPresent\r\n",
+							"\t\t,CASE \r\n",
+							"\t\t\tWHEN (\r\n",
+							"\t\t\t\t\t(\r\n",
+							"\t\t\t\t\t\tlabor.actionDetails [0].actionType = 'Rejection'\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [1].actionType = 'Rejection'\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [2].actionType = 'Rejection'\r\n",
+							"\t\t\t\t\t\t)\r\n",
+							"\t\t\t\t\tAND (\r\n",
+							"\t\t\t\t\t\tlabor.actionDetails [0].reasonId = 333031\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [1].reasonId = 333031\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [2].reasonId = 333031\r\n",
+							"\t\t\t\t\t\t)\r\n",
+							"\t\t\t\t\t)\r\n",
+							"\t\t\t\tTHEN 'Rejected'\r\n",
+							"\t\t\tELSE 'Approved'\r\n",
+							"\t\t\tEND AS ApprovedRejected\r\n",
+							"\t\t,Count(*) AS Count\r\n",
+							"\tFROM tbl_LaborTransactionAudit\r\n",
+							"\tWHERE labor.laborDate > ADD_MONTHS(CURRENT_DATE(), -3)\r\n",
+							"\t\tAND labor.laborNotes = ''\r\n",
+							"\t\tAND labor.partner = 'aurora'\r\n",
+							"\t\tAND labor.laborStatus NOT IN (\r\n",
+							"\t\t\t'Submitted'\r\n",
+							"\t\t\t,'Deleted'\r\n",
+							"\t\t\t)\r\n",
+							"\tGROUP BY (labor.approvalDetails.actualApprover)\r\n",
+							"\t\t,(labor.assignmentDetails.customerName)\r\n",
+							"\t\t,(labor.partner)\r\n",
+							"\t\t,CASE \r\n",
+							"\t\t\tWHEN labor.laborNotes = ''\r\n",
+							"\t\t\t\tTHEN 'No'\r\n",
+							"\t\t\tELSE 'Yes'\r\n",
+							"\t\t\tEND\r\n",
+							"\t\t,CASE \r\n",
+							"\t\t\tWHEN (\r\n",
+							"\t\t\t\t\t(\r\n",
+							"\t\t\t\t\t\tlabor.actionDetails [0].actionType = 'Rejection'\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [1].actionType = 'Rejection'\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [2].actionType = 'Rejection'\r\n",
+							"\t\t\t\t\t\t)\r\n",
+							"\t\t\t\t\tAND (\r\n",
+							"\t\t\t\t\t\tlabor.actionDetails [0].reasonId = 333031\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [1].reasonId = 333031\r\n",
+							"\t\t\t\t\t\tOR labor.actionDetails [2].reasonId = 333031\r\n",
+							"\t\t\t\t\t\t)\r\n",
+							"\t\t\t\t\t)\r\n",
+							"\t\t\t\tTHEN 'Rejected'\r\n",
+							"\t\t\tELSE 'Approved'\r\n",
+							"\t\t\tEND\r\n",
+							"\t)\r\n",
+							"\t,FilteredRejectionApproved\r\n",
+							"AS (\r\n",
+							"\tSELECT ActualApprover\r\n",
+							"\t\t,Partner\r\n",
+							"\t\t,CustomerName\r\n",
+							"\tFROM RejectionCTE\r\n",
+							"\tGROUP BY ActualApprover\r\n",
+							"\t\t,Partner\r\n",
+							"\t\t,CustomerName\r\n",
+							"\tHAVING COUNT(1) > 1\r\n",
+							"\t)\r\n",
+							"\t,FinalFilter\r\n",
+							"AS (\r\n",
+							"\tSELECT R.*\r\n",
+							"\tFROM RejectionCTE R\r\n",
+							"\tLEFT JOIN FilteredRejectionApproved F ON R.ActualApprover = F.ActualApprover\r\n",
+							"\t\tAND R.Partner = F.Partner\r\n",
+							"\t\tAND R.CustomerName = F.CustomerName\r\n",
+							"\tWHERE R.ActualApprover IS NOT NULL\r\n",
+							"\t\tAND F.ActualApprover IS NULL\r\n",
+							"\t)\r\n",
+							"\t,CalculatedRejection\r\n",
+							"AS (\r\n",
+							"\tSELECT R.ActualApprover\r\n",
+							"\t\t,R.Partner\r\n",
+							"\t\t,R.CustomerName\r\n",
+							"\t\t,R.NotesPresent\r\n",
+							"\t\t,Rejected\r\n",
+							"\t\t,Approved\r\n",
+							"\tFROM RejectionCTE AS R\r\n",
+							"\tJOIN FilteredRejectionApproved F ON R.ActualApprover = F.ActualApprover\r\n",
+							"\t\tAND R.Partner = F.Partner\r\n",
+							"\t\tAND R.CustomerName = F.CustomerName\r\n",
+							"\tPIVOT(SUM(R.Count) FOR ApprovedRejected IN (\r\n",
+							"\t\t\t\t'Approved'\r\n",
+							"\t\t\t\t,'Rejected'\r\n",
+							"\t\t\t\t))\r\n",
+							"\tWHERE Rejected * 100 / (Approved + Rejected) >= 20\r\n",
+							"\t)\r\n",
+							"SELECT UUID() AS Id\r\n",
+							"\t,LOWER(F.ActualApprover) AS ActualApprover\r\n",
+							"\t,F.Partner\r\n",
+							"\t,LOWER(F.CustomerName) AS CustomerName\r\n",
+							"\t,F.NotesPresent\t\r\n",
+							"\t,'Labor against similar assignments have seen a high rejection by approvers when submitted with no/insufficient labor notes.' AS Message\r\n",
+							"\t,current_timestamp() AS UpdatedDateTimeUTC\r\n",
+							"FROM FinalFilter F\r\n",
+							"WHERE ApprovedRejected = 'Rejected'\r\n",
+							"\r\n",
+							"UNION\r\n",
+							"\r\n",
+							"SELECT UUID() AS Id\r\n",
+							"\t,LOWER(ActualApprover) AS ActualApprover\r\n",
+							"\t,Partner\r\n",
+							"\t,LOWER(CustomerName) AS CustomerName\r\n",
+							"\t,NotesPresent\r\n",
+							"\t,'Labor against similar assignments have seen a high rejection by approvers when submitted with no/insufficient labor notes.' AS Message\r\n",
+							"\t,current_timestamp() AS UpdatedDateTimeUTC\r\n",
+							"FROM CalculatedRejection\"\"\")\r\n",
+							"\r\n",
+							""
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"val outputfile = \"wasbs://rejectedlaborrecommendation@lmtsalrscoreuateastus.blob.core.windows.net/\"  \r\n",
+							"var filename = \"rejectionInsights\"\r\n",
+							"var outputFileName = outputfile +  filename \r\n",
+							"\r\n",
+							"\r\n",
+							"df.coalesce(1).write.format(\"json\").option(\"header\", \"true\").mode(\"overwrite\").save(outputFileName)\r\n",
+							""
+						],
+						"attachments": null,
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/git test')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "67a7d088-ef2b-4136-804a-1707d0a51c0d"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"print(\"hello\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		}
+	]
+}
