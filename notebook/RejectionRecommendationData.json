@@ -17,15 +17,15 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "76616a4a-8e58-4991-8b22-54ef6f0ed11d"
+				"spark.autotune.trackingId": "09a8bbd0-0d30-4587-9495-64827d5f9667"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
 			"enableDebugMode": false,
 			"kernelspec": {
-				"name": "synapse_spark",
-				"display_name": "scala"
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "scala"
@@ -85,7 +85,7 @@
 					"spark.conf.set(\"spark.storage.synapse.akv\", \"LMT-KV-DEV-EASTUS\")\r\n",
 					"spark.conf.set(\"spark.storage.akv.secret\", \"secretKey\")"
 				],
-				"execution_count": null
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
