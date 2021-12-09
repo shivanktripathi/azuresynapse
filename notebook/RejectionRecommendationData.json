@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "09a8bbd0-0d30-4587-9495-64827d5f9667"
+				"spark.autotune.trackingId": "0248638b-d4b3-4764-bcc6-ef84c73d1efd"
 			}
 		},
 		"metadata": {
@@ -83,7 +83,7 @@
 					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", \"SAS\")\r\n",
 					"spark.conf.set(\"fs.azure.sas.token.provider.type\", \"com.microsoft.azure.synapse.tokenlibrary.AkvBasedSASProvider\")\r\n",
 					"spark.conf.set(\"spark.storage.synapse.akv\", \"LMT-KV-DEV-EASTUS\")\r\n",
-					"spark.conf.set(\"spark.storage.akv.secret\", \"secretKey\")"
+					"spark.conf.set(\"spark.storage.akv.secret\", secretKey)"
 				],
 				"execution_count": 1
 			},
