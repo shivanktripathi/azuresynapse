@@ -4,7 +4,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TestPool",
+			"referenceName": "LMTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,24 +17,24 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "bc5ae0ca-6da0-4a96-b000-513e23f67188"
+				"spark.autotune.trackingId": "3dcf28ec-ef2f-4559-a373-5d7a7c881b48"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
 			"enableDebugMode": false,
 			"kernelspec": {
-				"name": "synapse_spark",
-				"display_name": "scala"
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "scala"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
-				"name": "TestPool",
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
+				"name": "LMTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
@@ -80,6 +80,7 @@
 					}
 				},
 				"source": [
+					"var secretKey = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"secretKey\", \"AzureKeyVault1\");\r\n",
 					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", \"SAS\")\r\n",
 					"spark.conf.set(\"fs.azure.sas.token.provider.type\", \"com.microsoft.azure.synapse.tokenlibrary.AkvBasedSASProvider\")\r\n",
 					"spark.conf.set(\"spark.storage.synapse.akv\", \"LMT-KV-DEV-EASTUS\")\r\n",
