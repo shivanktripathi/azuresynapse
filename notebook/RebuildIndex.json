@@ -4,7 +4,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TestPool",
+			"referenceName": "LMTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -12,12 +12,12 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 4,
+			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "4",
-				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "75a0f124-6b3d-4127-858d-dc2fe9f55534"
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "361cec27-32ce-4042-b658-92f8c05c73c6"
 			}
 		},
 		"metadata": {
@@ -34,10 +34,10 @@
 				"name": "csharp"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
-				"name": "TestPool",
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
+				"name": "LMTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"

@@ -1,10 +1,10 @@
 {
-	"name": "RejectionRecommendationData",
+	"name": "ApprovalHistory",
 	"properties": {
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "LMTSparkPool",
+			"referenceName": "TestPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c8a85934-46bc-4e56-8bcc-de60922c3c0a"
+				"spark.autotune.trackingId": "8ffb289f-8448-4a14-8da4-ce7d92f7451b"
 			}
 		},
 		"metadata": {
@@ -27,17 +27,17 @@
 			},
 			"enableDebugMode": false,
 			"kernelspec": {
-				"name": "synapse_spark",
-				"display_name": "scala"
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "scala"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
-				"name": "LMTSparkPool",
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
+				"name": "TestPool",
 				"type": "Spark",
-				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
@@ -67,7 +67,7 @@
 					"\t)"
 				],
 				"attachments": null,
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
