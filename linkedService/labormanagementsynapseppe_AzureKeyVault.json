@@ -1,0 +1,10 @@
+{
+	"name": "labormanagementsynapseppe_AzureKeyVault",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://LMT-KV-DEV-EASTUS.vault.azure.net/"
+		}
+	}
+}
