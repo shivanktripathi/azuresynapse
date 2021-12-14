@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ad6db320-9339-43be-9219-2f63fb731663"
+				"spark.autotune.trackingId": "619c4b40-bed6-427c-be3b-90628ae1e012"
 			}
 		},
 		"metadata": {
@@ -80,12 +80,8 @@
 					}
 				},
 				"source": [
-					"var secretKey = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"secretKey\", \"AzureKeyVault1\");\r\n",
-					"println(secretKey);\r\n",
-					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", \"SAS\")\r\n",
-					"spark.conf.set(\"fs.azure.sas.token.provider.type\", \"com.microsoft.azure.synapse.tokenlibrary.AkvBasedSASProvider\")\r\n",
-					"spark.conf.set(\"spark.storage.synapse.akv\", \"LMT-KV-DEV-EASTUS\")\r\n",
-					"spark.conf.set(\"spark.storage.akv.secret\", secretKey)"
+					"var secretKey = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-StorageApiKey\", \"labormanagementsynapseppe_AzureKeyVault\");\r\n",
+					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", secretKey)"
 				],
 				"execution_count": 4
 			},
