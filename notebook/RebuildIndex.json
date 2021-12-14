@@ -4,7 +4,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TestPool",
+			"referenceName": "LMTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "4",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "aafbdd1c-5362-4870-9505-53269b069959"
+				"spark.autotune.trackingId": "d5396f07-4656-4efc-a98b-961cba9fb94a"
 			}
 		},
 		"metadata": {
@@ -31,10 +31,10 @@
 				"name": "csharp"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/TestPool",
-				"name": "TestPool",
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
+				"name": "LMTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TestPool",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
@@ -76,10 +76,10 @@
 					"using System.Linq;\r\n",
 					"using Microsoft.Spark.Extensions.Azure.Synapse.Analytics.Utils;\r\n",
 					"\r\n",
-					"public static string searchServiceName = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"searchServiceName\", \"AzureKeyVault1\");\r\n",
-					"public static string searchIndex = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"searchIndex\", \"AzureKeyVault1\");\r\n",
-					"public static string KeyCol = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"KeyCol\", \"AzureKeyVault1\");\r\n",
-					"public static string apiKey =TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"apiKey\", \"AzureKeyVault1\");\r\n",
+					"public static string searchServiceName = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchServiceName\", \"labormanagementsynapseppe_AzureKeyVault\");\r\n",
+					"public static string searchIndex = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchIndex\", \"labormanagementsynapseppe_AzureKeyVault\");\r\n",
+					"public static string KeyCol = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchKeyColumn\", \"labormanagementsynapseppe_AzureKeyVault\");\r\n",
+					"public static string apiKey =TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchApiKey\", \"labormanagementsynapseppe_AzureKeyVault\");\r\n",
 					"\r\n",
 					"while (true)\r\n",
 					"{\r\n",
