@@ -1,5 +1,5 @@
 {
-	"name": "lmt_cosmos_prod",
+	"name": "LMT_Cosmos_Prod",
 	"type": "Microsoft.Synapse/workspaces/linkedservices",
 	"properties": {
 		"annotations": [],
