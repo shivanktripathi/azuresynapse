@@ -1,0 +1,10 @@
+{
+	"name": "LMT_KeyVault_Dev",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://LMT-KV-DEV-EASTUS.vault.azure.net/"
+		}
+	}
+}
