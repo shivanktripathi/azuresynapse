@@ -1,0 +1,10 @@
+{
+	"name": "LMT_KeyVault_Prod",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://LMT-KV-PROD-EASTUS.vault.azure.net/"
+		}
+	}
+}
