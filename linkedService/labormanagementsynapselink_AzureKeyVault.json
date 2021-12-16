@@ -1,0 +1,11 @@
+{
+	"name": "labormanagementsynapselink_AzureKeyVault",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://LMT-KV-PROD-EASTUS.vault.azure.net/"
+		}
+	}
+}

@@ -1,0 +1,61 @@
+{
+	"name": "ApprovalHistoryFileSystem",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ApprovalHistoryFileStorageLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "wrangled_data_folder",
+				"container": "approvalhistory"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"laborId": {
+					"type": "string"
+				},
+				"laborDate": {
+					"type": "string"
+				},
+				"laborHours": {
+					"type": "string"
+				},
+				"laborTimeZoneId": {
+					"type": "integer"
+				},
+				"laborCategoryId": {
+					"type": "integer"
+				},
+				"submittedFor": {
+					"type": "string"
+				},
+				"submittedBy": {
+					"type": "string"
+				},
+				"submittedDateInUtc": {
+					"type": "string"
+				},
+				"laborStatus": {
+					"type": "string"
+				},
+				"laborNotes": {
+					"type": "string"
+				},
+				"partner": {
+					"type": "string"
+				},
+				"updatedDateTimeInUtc": {
+					"type": "string"
+				},
+				"id": "{\n  \"type\": \"string\"\n}"
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

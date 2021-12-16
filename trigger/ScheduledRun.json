@@ -14,13 +14,17 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Week",
+				"frequency": "Day",
 				"interval": 1,
 				"startTime": "2021-11-30T00:00:00Z",
+				"endTime": "2022-02-28T14:57:00Z",
 				"timeZone": "UTC",
 				"schedule": {
-					"weekDays": [
-						"Sunday"
+					"minutes": [
+						0
+					],
+					"hours": [
+						0
 					]
 				}
 			}

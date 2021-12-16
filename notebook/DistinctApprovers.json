@@ -1,0 +1,136 @@
+{
+	"name": "DistinctApprovers",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "LMTSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "abab1971-b4eb-46f7-bf85-2120d10f5e98"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "scala"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
+				"name": "LMTSparkPool",
+				"type": "Spark",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			}
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"Drop TABLE IF EXISTS tbl_LaborTransactionAudit;\r\n",
+					"CREATE TABLE tbl_LaborTransactionAudit USING cosmos.olap OPTIONS (\r\n",
+					"\tspark.synapse.linkedService 'lmt_cosmos_prod'\r\n",
+					"\t,spark.cosmos.container 'LaborTransactionAudit'\r\n",
+					"\t)"
+				],
+				"attachments": null,
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\",\"hCAr724m+dDe3QpkKrMDvKvqf3dcQy25nUL9AjJyDU66To6NQcDUgkQ57smWqatNKpZ1Ji4tFhGqCd7UMpuQng==\")"
+				],
+				"attachments": null,
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"var df = spark.sql(\"\"\"SELECT labor.approvalDetails.assignedApprover as assignedApprover  FROM tbl_LaborTransactionAudit \"\"\")\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null,
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"val distinctValuesDF = df.select(df(\"assignedApprover\")).distinct\r\n",
+					"display(distinctValuesDF)"
+				],
+				"attachments": null,
+				"execution_count": 9
+			}
+		]
+	}
+}

@@ -1,0 +1,189 @@
+{
+	"name": "ApprovalHistory",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "wrangled_data_folder",
+							"wildcardFileName": "*.json",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureTableSink",
+						"azureTableInsertType": "merge",
+						"azureTablePartitionKeyName": "assignedApprover",
+						"azureTableRowKeyName": "id",
+						"writeBatchSize": 10000
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "$['laborId']"
+								},
+								"sink": {
+									"name": "laborId",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['laborDate']"
+								},
+								"sink": {
+									"name": "laborDate",
+									"type": "DateTimeOffset"
+								}
+							},
+							{
+								"source": {
+									"path": "$['laborHours']"
+								},
+								"sink": {
+									"name": "laborHours",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['laborTimeZoneId']"
+								},
+								"sink": {
+									"name": "laborTimeZoneId",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['laborCategoryId']"
+								},
+								"sink": {
+									"name": "laborCategoryId",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "$['submittedFor']"
+								},
+								"sink": {
+									"name": "submittedFor",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['submittedBy']"
+								},
+								"sink": {
+									"name": "submittedBy",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['submittedDateInUtc']"
+								},
+								"sink": {
+									"name": "submittedDateInUtc",
+									"type": "DateTimeOffset"
+								}
+							},
+							{
+								"source": {
+									"path": "$['laborStatus']"
+								},
+								"sink": {
+									"name": "laborStatus",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['laborNotes']"
+								},
+								"sink": {
+									"name": "laborNotes",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['partner']"
+								},
+								"sink": {
+									"name": "partner",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['assignedApprover']"
+								},
+								"sink": {
+									"name": "assignedApprover",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "$['updatedDateTimeInUtc']"
+								},
+								"sink": {
+									"name": "updatedDateTimeInUtc",
+									"type": "DateTimeOffset"
+								}
+							},
+							{
+								"source": {
+									"path": "$['id']"
+								},
+								"sink": {
+									"name": "id",
+									"type": "String"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ApprovalHistoryFileSystem",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ApprovalHistoryTableStorage",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-12-16T04:37:24Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 1",
+	"properties": {
+		"content": {
+			"query": "SELECT  distinct JSON_Value(labor,'$.submittedFor')\nFROM OPENROWSET('CosmosDB',\n'Account=lmt-cdba-core-prod-eastus;Database=lmt-cdb-core-prod;Key=9TuOr2xtxyQMAPyZHsELCfGIXawfw7gp1OBIdnZGfHUpRC7gOnq3JDID0vLkot3oe3UDVFlAGE6dVuVMcxmOBQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\nWHERE Isjson(labor) = 1\nand JSON_Value(labor,'$.partner') = 'aurora'\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "LaborTransactionAudit",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

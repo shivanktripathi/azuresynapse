@@ -1,5 +1,5 @@
 {
-	"name": "ApprovalHistory",
+	"name": "ApprovalHistoryV2",
 	"properties": {
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ac25d5c8-dd9a-41d3-8d2d-eef3ef704dad"
+				"spark.autotune.trackingId": "b1a52a9c-b9bd-49c1-be6b-5f30d177a33f"
 			}
 		},
 		"metadata": {
@@ -86,7 +86,26 @@
 					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\",\"hCAr724m+dDe3QpkKrMDvKvqf3dcQy25nUL9AjJyDU66To6NQcDUgkQ57smWqatNKpZ1Ji4tFhGqCd7UMpuQng==\")"
 				],
 				"attachments": null,
-				"execution_count": 2
+				"execution_count": 130
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"var df = spark.read.format(\"com.microsoft.azure.cosmosdb.spark\")"
+				],
+				"attachments": null,
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -121,7 +140,7 @@
 					""
 				],
 				"attachments": null,
-				"execution_count": 3
+				"execution_count": 131
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +160,7 @@
 					"//display(df)"
 				],
 				"attachments": null,
-				"execution_count": 142
+				"execution_count": 126
 			},
 			{
 				"cell_type": "code",
@@ -168,11 +187,11 @@
 					"var output_blob_folder = output_container_path + \"/wrangled_data_folder\"\r\n",
 					"\r\n",
 					"\r\n",
-					"df.coalesce(30).write.format(\"json\").option(\"header\", \"true\").mode(\"overwrite\").save(output_blob_folder)\r\n",
+					"df.coalesce(1).write.format(\"json\").option(\"header\", \"true\").mode(\"overwrite\").save(output_blob_folder)\r\n",
 					""
 				],
 				"attachments": null,
-				"execution_count": 4
+				"execution_count": 132
 			},
 			{
 				"cell_type": "markdown",
@@ -262,62 +281,12 @@
 					"    .Config($\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", \"hCAr724m+dDe3QpkKrMDvKvqf3dcQy25nUL9AjJyDU66To6NQcDUgkQ57smWqatNKpZ1Ji4tFhGqCd7UMpuQng==\")\r\n",
 					"    .GetOrCreate();\r\n",
 					"\r\n",
-					""
+					"\r\n",
+					"DataFrame readDf = spark.Read().Json(filePath);\r\n",
+					"readDf.Show();"
 				],
 				"attachments": null,
-				"execution_count": 10
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "csharp"
-					}
-				},
-				"source": [
-					"%%csharp \r\n",
-					"\r\n",
-					"//DataFrame readDf = spark.Read().Json(filePath);\r\n",
-					"readDf.Select(\"id\").Count();"
-				],
-				"attachments": null,
-				"execution_count": 21
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "csharp"
-					}
-				},
-				"source": [
-					"%%csharp\r\n",
-					"\r\n",
-					"#r \"nuget: Azure.Data.Tables, 12.3.0\"\r\n",
-					"\r\n",
-					"\r\n",
-					""
-				],
-				"attachments": null,
-				"execution_count": 15
+				"execution_count": 128
 			}
 		]
 	}

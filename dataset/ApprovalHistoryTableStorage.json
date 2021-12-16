@@ -1,0 +1,16 @@
+{
+	"name": "ApprovalHistoryTableStorage",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ApprovalHistoryTableStorageLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "ApprovalHistory"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
