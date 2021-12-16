@@ -1,0 +1,10 @@
+{
+	"name": "LMT_KeyVault_Uat",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://LMT-KV-UAT-EASTUS.vault.azure.net/"
+		}
+	}
+}
