@@ -2,12 +2,12 @@
 	"name": "SQL script 1",
 	"properties": {
 		"content": {
-			"query": "SELECT  distinct JSON_Value(labor,'$.submittedFor')\nFROM OPENROWSET('CosmosDB',\n'Account=lmt-cdba-core-prod-eastus;Database=lmt-cdb-core-prod;Key=9TuOr2xtxyQMAPyZHsELCfGIXawfw7gp1OBIdnZGfHUpRC7gOnq3JDID0vLkot3oe3UDVFlAGE6dVuVMcxmOBQ==',\nLaborTransactionAudit) AS LaborTransactionAudit\nWHERE Isjson(labor) = 1\nand JSON_Value(labor,'$.partner') = 'aurora'\n",
+			"query": "SELECT * FROM dbo.approval_history where assignedApprover = 'mayv'\n\n\nSELECT *\n FROM [dbo].[approval_history]\n WHERE assignedApprover = 'mayv' and labordate >= '2021-12-05T00:00:00.0000000' and labordate <= '2021-12-11T00:00:00.0000000'\n\n\nDROP EXTERNAL TABLE [dbo].[approval_history];  \n\n\nCREATE EXTERNAL TABLE approval_history (\n    [_ts] bigint,\n    [laborId] nvarchar(4000),\n    [laborHours] nvarchar(4000),\n    [laborTimeZoneId] bigint,\n    [laborCategoryId] bigint,\n    [submittedFor] nvarchar(4000),\n    [submittedBy] nvarchar(4000),\n    [laborStatus] nvarchar(4000),\n    [laborNotes] nvarchar(4000),\n    [partner] nvarchar(4000),\n    [assignmentId] nvarchar(4000),\n    [assignedApprover] nvarchar(4000),\n    [updatedDateTimeInUtc] nvarchar(4000),\n    [id] nvarchar(4000),\n    [laborDate] date,\n    [submittedDateInUtc] date\n    )\n    WITH (\n    LOCATION = 'synapse/workspaces/labormangementsynapseppe/warehouse/approval_history/**',\n    DATA_SOURCE = [lmtsynapsefilesystem_lmtsynapsedlppe_dfs_core_windows_net],\n    FILE_FORMAT = [SynapseParquetFormat]\n    )\nGO\n\n\n\n\n",
 			"metadata": {
 				"language": "sql"
 			},
 			"currentConnection": {
-				"databaseName": "LaborTransactionAudit",
+				"databaseName": "default",
 				"poolName": "Built-in"
 			},
 			"resultLimit": 5000

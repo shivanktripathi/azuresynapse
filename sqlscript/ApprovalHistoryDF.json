@@ -1,0 +1,17 @@
+{
+	"name": "ApprovalHistoryDF",
+	"properties": {
+		"content": {
+			"query": "SELECT *\n FROM [default].[dbo].[approval_historydf]\n WHERE assignedApprover = 'mayv' and labordate >= '2021-12-05T00:00:00.0000000' and labordate <= '2021-12-11T00:00:00.0000000'\n\n\n\n SELECT MAX(_ts)\n FROM [default].[dbo].[approval_historydf] \n WHERE assignedApprover = 'mayv'\n\n \n SELECT *\n FROM [default].[dbo].[approval_historydf]  where [laborId] = '19d3da2b-f529-4d5f-b729-d1c3cb900351'\n\ndelete from  [default].[dbo].[approval_historydf] WHERE assignedApprover = 'mayv' \n\n\n 15086408\n\n15108213\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "LaborTransactionAudit",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

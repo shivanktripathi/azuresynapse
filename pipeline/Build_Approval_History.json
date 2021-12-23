@@ -1,0 +1,49 @@
+{
+	"name": "Build_Approval_History",
+	"properties": {
+		"activities": [
+			{
+				"name": "Build Approval History",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "Build_Approval_History",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"writeMode": {
+							"value": {
+								"value": "@pipeline().parameters.writeMode",
+								"type": "Expression"
+							},
+							"type": "string"
+						}
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "LMTSparkPool",
+						"type": "BigDataPoolReference"
+					}
+				}
+			}
+		],
+		"concurrency": 1,
+		"parameters": {
+			"writeMode": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-12-23T02:57:49Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

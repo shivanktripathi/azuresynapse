@@ -1,0 +1,648 @@
+{
+	"name": "ApprovalHistory_Obsolete",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "LMTSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "7913805b-7f18-4c1b-a3bb-665547293289"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "scala"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
+				"name": "LMTSparkPool",
+				"type": "Spark",
+				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			}
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"\r\n",
+					"// base parameters from pipeline or debugging \r\n",
+					"// writeMode = \"append\" //  Accepted save modes are 'overwrite', 'append', 'ignore', 'error', 'errorifexists', 'default'."
+				],
+				"attachments": null,
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(spark.conf.get(\"spark.executor.instances\"))\r\n",
+					"print(spark.conf.get(\"spark.executor.cores\"))\r\n",
+					"print(spark.conf.get(\"spark.executor.memory\"))\r\n",
+					"print(writeMode)\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null,
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"//spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\",\"hCAr724m+dDe3QpkKrMDvKvqf3dcQy25nUL9AjJyDU66To6NQcDUgkQ57smWqatNKpZ1Ji4tFhGqCd7UMpuQng==\")\r\n",
+					"\r\n",
+					"spark.conf.set(\"spark.cosmos.autoSchemaMerge\", true)\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null,
+				"execution_count": 47
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"Drop TABLE IF EXISTS tbl_LaborTransactionAudit;\r\n",
+					"CREATE TABLE tbl_LaborTransactionAudit USING cosmos.olap OPTIONS (\r\n",
+					"\tspark.synapse.linkedService 'lmt_cosmos_prod'\r\n",
+					"\t,spark.cosmos.container 'LaborTransactionAudit'\r\n",
+					"\t)"
+				],
+				"attachments": null,
+				"execution_count": 48
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%csharp\r\n",
+					"\r\n",
+					"#r \"nuget: System.Data.SqlClient\"\r\n",
+					"\r\n",
+					"using System;\r\n",
+					"using System.Data.SqlClient;\r\n",
+					"using System.Linq;\r\n",
+					"using System.Collections.Generic;\r\n",
+					"using Microsoft.Spark.Sql;\r\n",
+					"using Microsoft.Spark.Sql.Types;\r\n",
+					"using System.Collections.Generic;\r\n",
+					"\r\n",
+					"SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();\r\n",
+					"\r\n",
+					"builder.DataSource = \"labormangementsynapseppe-ondemand.sql.azuresynapse.net\";\r\n",
+					"builder.UserID = \"labormanagementadminppe\"; //LMTSynapseTemp\r\n",
+					"builder.Password = \"Microsoft@123\";\r\n",
+					"builder.InitialCatalog = \"LaborTransactionAudit\";\r\n",
+					"long previous_max_ts = 0L;\r\n",
+					"\r\n",
+					"using (SqlConnection connection = new SqlConnection(builder.ConnectionString))\r\n",
+					"{\r\n",
+					"    connection.Open();\r\n",
+					"\r\n",
+					"    String sql = \"SELECT MAX(_ts) FROM [dbo].[approval_history]\";\r\n",
+					"    \r\n",
+					"    using (SqlCommand command = new SqlCommand(sql, connection))\r\n",
+					"    {\r\n",
+					"       command.CommandTimeout = 1000;\r\n",
+					"       previous_max_ts = (long)command.ExecuteScalar();\r\n",
+					"       Console.WriteLine($\"previous_max_ts: {previous_max_ts}\");\r\n",
+					"    }\r\n",
+					"}\r\n",
+					"\r\n",
+					"SparkSession spark = SparkSession\r\n",
+					"    .Builder()\r\n",
+					"    .Config(\"app.previous_state.approval_history_max_ts\", previous_max_ts)\r\n",
+					"    .GetOrCreate();\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"var df = spark.sql(\"\"\"SELECT _ts, \r\n",
+					"                             labor.laborId,\r\n",
+					"                             labor.laborDate as laborDateStr,\r\n",
+					"                             labor.laborHours,\r\n",
+					"                             labor.laborTimeZoneId,\r\n",
+					"                             labor.laborCategoryId,\r\n",
+					"                             labor.submittedFor,\r\n",
+					"                             labor.submittedBy,\r\n",
+					"                             labor.submittedDateInUtc as submittedDateInUtcStr,\r\n",
+					"                             labor.laborStatus,\r\n",
+					"                             labor.laborNotes,\r\n",
+					"                             labor.partner,\r\n",
+					"                             labor.assignmentDetails.assignmentId,\r\n",
+					"                             labor.approvalDetails.assignedApprover,\r\n",
+					"                             labor.approvalDetails.actualApprover,\r\n",
+					"                             labor.approvalDetails.actualApprovalDateTimeInUtc as actualApprovalDateTimeInUtcStr,\r\n",
+					"                             labor.updatedDateTimeInUtc,\r\n",
+					"                             id FROM tbl_LaborTransactionAudit WHERE labor.laborDate > add_months(CURRENT_DATE(), -6) and labor.laborStatus = 'Approved' \"\"\")\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null,
+				"execution_count": 49
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df.printSchema"
+				],
+				"attachments": null,
+				"execution_count": 50
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"val dateFormat = \"yyyy-MM-dd'T'HH:mm:ss.SSSX\"\r\n",
+					"var tableName = \"approval_history\"\r\n",
+					"\r\n",
+					"\r\n",
+					"//var previous_approval_history_max_ts = spark.sql(\"SELECT MAX(_ts) as max_ts FROM approval_history\").select(col(\"max_ts\")).first.getLong(0)//spark.conf.get(\"app.previous_state.approval_history_max_ts\").toLong\r\n",
+					"\r\n",
+					"\r\n",
+					"//var approval_HistoryDFTableExits = spark.catalog.listTables(\"Approval_History\")\r\n",
+					"var previous_approval_history_max_ts = if (spark.catalog.tableExists(tableName) == true) spark.read.table(tableName).agg(max(\"_ts\")).head().getLong(0) else 0L\r\n",
+					"\r\n",
+					"// s\"concat(year(to_date(laborDateStr)), month(to_date(laborDateStr))) as laborYearMonth\",\r\n",
+					"//val transformedDF = df.filter(col(\"_ts\") > previous_approval_history_max_ts).selectExpr(\r\n",
+					"  //                \"*\",\r\n",
+					"    //              s\"to_utc_timestamp(date_format(laborDateStr, $dateFormat),'UTC')) as laborDate\",\r\n",
+					"      //            s\"to_utc_timestamp(date_format(submittedDateInUtcStr, $dateFormat),'UTC')) as submittedDateInUtc\")\r\n",
+					"\r\n",
+					"var transformedDF = (df.filter(col(\"_ts\") > previous_approval_history_max_ts)\r\n",
+					"                      .withColumn(\"laborDate\", to_utc_timestamp(date_format(col(\"laborDateStr\"), s\"$dateFormat\"),\"UTC\"))\r\n",
+					"                      .withColumn(\"submittedDateInUtc\", to_utc_timestamp(date_format(col(\"submittedDateInUtcStr\"), s\"$dateFormat\"),\"UTC\"))\r\n",
+					"                      .withColumn(\"actualApprovalDateTimeInUtc\", to_utc_timestamp(date_format(col(\"actualApprovalDateTimeInUtcStr\"), s\"$dateFormat\"),\"UTC\"))\r\n",
+					"                      .withColumn(\"month\", month(to_date(col(\"laborDateStr\"))))\r\n",
+					"                      .withColumn(\"year\", year(to_date(col(\"laborDateStr\")))))\r\n",
+					"\r\n",
+					" var transformedDFCleaned = transformedDF.drop(\"laborDateStr\", \"submittedDateInUtcStr\")"
+				],
+				"attachments": null,
+				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"transformedDFCleaned.printSchema"
+				],
+				"attachments": null,
+				"execution_count": 52
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"//spark.sql(\"set spark.databricks.delta.autoCompact.optimizeWrite = auto\")\r\n",
+					"//spark.sql(\"set spark.databricks.delta.autoCompact.enabled = true\")\r\n",
+					"\r\n",
+					"//import com.github.mrpowers.spark.daria.utils.DirHelpers\r\n",
+					"//val num1GBPartitions = DirHelpers.num1GBPartitions(numGigaBytes)\r\n",
+					"\r\n",
+					"\r\n",
+					"//transformedDFCleaned.write.format(\"parquet\").mode(\"overwrite\").save(\"abfss://lmtsynapsefilesystem@lmtsynapsedlppe.dfs.core.windows.net/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history\")\r\n",
+					"transformedDFCleaned.repartition(10, col(\"year\"), col(\"month\"), rand).write.format(\"delta\").mode(writeMode).partitionBy(\"year\", \"month\").saveAsTable(tableName)\r\n",
+					"\r\n",
+					"//  Accepted save modes are 'overwrite', 'append', 'ignore', 'error', 'errorifexists', 'default'."
+				],
+				"attachments": null,
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SHOW TABLES"
+				],
+				"attachments": null,
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(s\"OPTIMIZE $tableName\")"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"//var minimumRetentionDate = to_utc_timestamp(add_months(lit(current_date),-6), \"UTC\")\r\n",
+					"\r\n",
+					"//spark.sql(s\"SELECT * FROM approval_history\").show(2)\r\n",
+					"//spark.sql(s\"SELECT distinct laborDate FROM approval_history WHERE laborDate < add_months(current_timestamp(), -6)\").show()\r\n",
+					"\r\n",
+					"spark.sql(s\"DELETE FROM $tableName WHERE laborDate < add_months(current_timestamp(), -6)\")\r\n",
+					"\r\n",
+					"//spark.read.table(\"approval_history\").agg(max(\"_ts\")).head().getLong(0)"
+				],
+				"attachments": null,
+				"execution_count": 301
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.read.table(tableName).agg(min(\"_ts\")).head().getLong(0)"
+				],
+				"attachments": null,
+				"execution_count": 290
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(s\"VACUUM $tableName\")"
+				],
+				"attachments": null,
+				"execution_count": 269
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(s\"DROP TABLE IF EXISTS approval_history\")"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SHOW TABLES"
+				],
+				"attachments": null,
+				"execution_count": 55
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"//val outputfile = \"wasbs://approvalhistory@lmtsalrscoreuateastus.blob.core.windows.net/\"  \r\n",
+					"//var filename = \"approval_history.csv\"\r\n",
+					"//var outputFileName = outputfile +  filename \r\n",
+					"\r\n",
+					"//var output_container_name = \"approvalhistory\"\r\n",
+					"//var storage_name = \"lmtsalrscoreuateastus\"\r\n",
+					"var output_container_path = \"wasbs://approvalhistory@lmtsalrscoreuateastus.blob.core.windows.net/\"\r\n",
+					"var output_blob_folder = output_container_path + \"/wrangled_data_folder\"\r\n",
+					"\r\n",
+					"\r\n",
+					"df.coalesce(8).write.format(\"json\").option(\"header\", \"true\").mode(\"overwrite\").save(output_blob_folder)\r\n",
+					""
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"\r\n",
+					"from pyspark.sql import SparkSession\r\n",
+					"from pyspark.dbutils import DBUtils\r\n",
+					"\r\n",
+					"output_container_path = \"wasbs://approvalhistory@lmtsalrscoreuateastus.blob.core.windows.net/\"\r\n",
+					"output_blob_folder = output_container_path + \"/wrangled_data_folder\"\r\n",
+					"\r\n",
+					"files = dbutils.fs.ls(output_blob_folder)\r\n",
+					"output_file = [x for x in files if x.name.startswith(\"part-\")]\r\n",
+					""
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"val df1 = spark.read.json(\"wasbs://approvalhistory@lmtsalrscoreuateastus.blob.core.windows.net//wrangled_data_folder\")\r\n",
+					""
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"display(df1.limit(400))"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%csharp\r\n",
+					"\r\n",
+					"#r \"nuget: Azure.Data.Tables, 12.3.0\"\r\n",
+					"\r\n",
+					"using Microsoft.Spark.Sql;\r\n",
+					"using Microsoft.Spark.Sql.Types;\r\n",
+					"using System.Collections.Generic;\r\n",
+					"\r\n",
+					"\r\n",
+					"string filePath = $\"wasbs://approvalhistory@lmtsalrscoreuateastus.blob.core.windows.net//wrangled_data_folder\";\r\n",
+					"\r\n",
+					"SparkSession spark = SparkSession\r\n",
+					"    .Builder()\r\n",
+					"    .AppName(\"Azure Storage example using .NET for Apache Spark\")\r\n",
+					"    .Config(\"fs.wasbs.impl\", \"org.apache.hadoop.fs.azure.NativeAzureFileSystem\")\r\n",
+					"    .Config($\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", \"hCAr724m+dDe3QpkKrMDvKvqf3dcQy25nUL9AjJyDU66To6NQcDUgkQ57smWqatNKpZ1Ji4tFhGqCd7UMpuQng==\")\r\n",
+					"    .GetOrCreate();\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%csharp \r\n",
+					"\r\n",
+					"//DataFrame readDf = spark.Read().Json(filePath);\r\n",
+					"readDf.Select(\"id\").Count();"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%csharp\r\n",
+					"\r\n",
+					"#r \"nuget: Azure.Data.Tables, 12.3.0\"\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"attachments": null
+			}
+		]
+	}
+}

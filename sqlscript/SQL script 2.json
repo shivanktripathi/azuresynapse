@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 2",
+	"properties": {
+		"content": {
+			"query": "select * from approval_history_p\nWHERE assignedApprover = 'mayv' and labordate >= '2021-12-05T00:00:00' \nand labordate <= '2021-12-06T00:00:00'\n\n\n-- This is auto-generated code\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'https://lmtsynapsedlppe.dfs.core.windows.net/lmtsynapsefilesystem/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history_p/',\n        FORMAT = 'parquet'\n    ) AS [result]\nWHERE assignedApprover = 'mayv' and labordate >= '2021-12-05T00:00:00' \nand labordate <= '2021-12-06T00:00:00'",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "default",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

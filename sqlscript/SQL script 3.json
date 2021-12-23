@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 3",
+	"properties": {
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'https://lmtsynapsedlppe.dfs.core.windows.net/lmtsynapsefilesystem/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history/',\n        FORMAT = 'DELTA'\n    ) AS [result]\nWHERE [year] = 2021 AND [month] = 7 and assignedApprover = 'chfilipc' and labordate >= '2021-07-25T00:00:00' \nand labordate <= '2021-07-31T00:00:00'\nORDER BY labordate DESC\nOFFSET (100) ROWS FETCH NEXT (100) ROWS ONLY\n\n\n-- This is auto-generated code\nSELECT\n   assignedApprover, [month], COUNT(*)\nFROM\n    OPENROWSET(\n        BULK 'https://lmtsynapsedlppe.dfs.core.windows.net/lmtsynapsefilesystem/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history/',\n        FORMAT = 'DELTA'\n    ) AS [result]\nWhere [year] = 2021 AND [month] = 7 and labordate >= '2021-07-25T00:00:00' and labordate <= '2021-07-31T00:00:00'\nGROUP by assignedApprover, [month]\norder by COUNT(*) DESC\n\n\n\n\n\n\n\n-- This is auto-generated code\nSELECT\n    MIN(_ts)\nFROM\n    OPENROWSET(\n        BULK 'https://lmtsynapsedlppe.dfs.core.windows.net/lmtsynapsefilesystem/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history/',\n        FORMAT = 'DELTA'\n    ) AS [result]\nWHERE [month] = 12 and assignedApprover = 'mayv' and labordate >= '2021-12-05T00:00:00' \nand labordate <= '2021-12-11T00:00:00'\n\n\n-- This is auto-generated code > 10 sec\nSELECT\n    *\nFROM\n    OPENROWSET(\n        BULK 'https://lmtsynapsedlppe.dfs.core.windows.net/lmtsynapsefilesystem/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history_dp_year_pp0/',\n        FORMAT = 'DELTA'\n    ) AS [result]\nWHERE [year] = 2021 AND [month] = 7 and assignedApprover = 'mayv' and labordate >= '2021-07-05T00:00:00' \nand labordate <= '2021-07-11T00:00:00'\n\n\n\n\n\nSELECT MAX(_ts) FROM \n    OPENROWSET(\n        BULK 'https://lmtsynapsedlppe.dfs.core.windows.net/lmtsynapsefilesystem/synapse/workspaces/labormangementsynapseppe/warehouse/approval_history/',\n        FORMAT = 'DELTA'\n    ) AS [result]\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "default",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

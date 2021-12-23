@@ -2,7 +2,7 @@
 	"name": "CosmosDbSqlApiCollection1",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "lmt_cosmos_uat",
+			"referenceName": "LMT_Cosmos_UAT",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
