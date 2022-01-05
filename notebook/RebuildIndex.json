@@ -12,19 +12,16 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 2,
+			"numExecutors": 4,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "361cec27-32ce-4042-b658-92f8c05c73c6"
+				"spark.dynamicAllocation.minExecutors": "4",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "d5396f07-4656-4efc-a98b-961cba9fb94a"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
-			"synapse_widget": {
-				"version": "0.1"
-			},
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_sparkdotnet",
@@ -77,11 +74,12 @@
 					"using System;\r\n",
 					"using System.Collections.Generic;\r\n",
 					"using System.Linq;\r\n",
+					"using Microsoft.Spark.Extensions.Azure.Synapse.Analytics.Utils;\r\n",
 					"\r\n",
-					"public static string searchServiceName = \"lmt-ass-core-uat-westus\";\r\n",
-					"public static string searchIndex = \"idx-rejectionrecommendation\";\r\n",
-					"public static string KeyCol = \"Id\";\r\n",
-					"public static string apiKey = \"\";\r\n",
+					"public static string searchServiceName = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchServiceName\", \"LMT_KeyVault_Dev\");\r\n",
+					"public static string searchIndex = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchIndex\", \"LMT_KeyVault_Dev\");\r\n",
+					"public static string KeyCol = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchKeyColumn\", \"LMT_KeyVault_Dev\");\r\n",
+					"public static string apiKey =TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\", \"LaborRejectionRecommendation-SearchApiKey\", \"LMT_KeyVault_Dev\");\r\n",
 					"\r\n",
 					"while (true)\r\n",
 					"{\r\n",

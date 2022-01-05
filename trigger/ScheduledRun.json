@@ -2,26 +2,27 @@
 	"name": "ScheduledRun",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "Build_Approval_History",
+					"referenceName": "RejectionRecommendationPipeline",
 					"type": "PipelineReference"
-				},
-				"parameters": {
-					"writeMode": "append"
 				}
 			}
 		],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Hour",
+				"frequency": "Week",
 				"interval": 1,
 				"startTime": "2021-11-30T00:00:00Z",
-				"endTime": "2022-04-30T01:40:08Z",
-				"timeZone": "UTC"
+				"timeZone": "UTC",
+				"schedule": {
+					"weekDays": [
+						"Sunday"
+					]
+				}
 			}
 		}
 	}

@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c8a85934-46bc-4e56-8bcc-de60922c3c0a"
+				"spark.autotune.trackingId": "335da486-4f3d-4e2a-b9d1-31bd8b033e66"
 			}
 		},
 		"metadata": {
@@ -34,10 +34,10 @@
 				"name": "scala"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-UAT/providers/Microsoft.Synapse/workspaces/labormangementsynapseppe/bigDataPools/LMTSparkPool",
+				"id": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-DEV/providers/Microsoft.Synapse/workspaces/labormangementsynapsedev/bigDataPools/LMTSparkPool",
 				"name": "LMTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://labormangementsynapseppe.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
+				"endpoint": "https://labormangementsynapsedev.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/LMTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
@@ -62,12 +62,12 @@
 					"%%sql\r\n",
 					"Drop TABLE IF EXISTS tbl_LaborTransactionAudit;\r\n",
 					"CREATE TABLE tbl_LaborTransactionAudit USING cosmos.olap OPTIONS (\r\n",
-					"\tspark.synapse.linkedService 'lmt_cosmos_prod'\r\n",
+					"\tspark.synapse.linkedService 'LMT_Cosmos_Prod'\r\n",
 					"\t,spark.cosmos.container 'LaborTransactionAudit'\r\n",
 					"\t)"
 				],
 				"attachments": null,
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -83,10 +83,11 @@
 					}
 				},
 				"source": [
-					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\",\"\")"
+					"var secretKey = TokenLibrary.getSecret(\"LMT-KV-UAT-EASTUS\", \"LaborRejectionRecommendation-StorageApiKey\", \"LMT_KeyVault_Uat\");\r\n",
+					"spark.conf.set(\"fs.azure.account.key.lmtsalrscoreuateastus.blob.core.windows.net\", secretKey)"
 				],
 				"attachments": null,
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",

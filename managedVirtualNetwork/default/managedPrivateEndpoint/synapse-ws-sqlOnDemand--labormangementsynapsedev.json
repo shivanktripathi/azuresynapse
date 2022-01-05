@@ -1,0 +1,10 @@
+{
+	"name": "synapse-ws-sqlOnDemand--labormangementsynapsedev",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/a2d99d65-e76e-4ea1-90fa-63c34843c7a0/resourceGroups/RG-LMT-CORE-DEV/providers/Microsoft.Synapse/workspaces/labormangementsynapsedev",
+		"groupId": "sqlOnDemand",
+		"fqdns": [
+			"labormangementsynapsedev-ondemand.48914589-a1bd-4703-b698-239a3f814cd6.sql.azuresynapse.net"
+		]
+	}
+}

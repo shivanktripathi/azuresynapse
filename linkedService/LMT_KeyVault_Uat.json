@@ -1,0 +1,11 @@
+{
+	"name": "LMT_KeyVault_Uat",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://LMT-KV-UAT-EASTUS.vault.azure.net/"
+		}
+	}
+}
