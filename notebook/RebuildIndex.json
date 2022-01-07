@@ -12,16 +12,19 @@
 			"driverCores": 4,
 			"executorMemory": "28g",
 			"executorCores": 4,
-			"numExecutors": 4,
+			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "4",
-				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "61636fa7-1616-4abb-a59d-d8af36cadee1"
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "1f0b67a4-5e2d-4655-94f5-a25591a43f34"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_sparkdotnet",
@@ -43,9 +46,8 @@
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
-				"automaticScaleJobs": false
-			},
-			"sessionKeepAliveTimeout": 30
+				"extraHeader": null
+			}
 		},
 		"cells": [
 			{
@@ -53,6 +55,7 @@
 				"source": [
 					"#r \"nuget: Microsoft.Azure.Search, 10.1.0\""
 				],
+				"attachments": null,
 				"execution_count": 1
 			},
 			{
@@ -76,10 +79,10 @@
 					"using System.Linq;\r\n",
 					"using Microsoft.Spark.Extensions.Azure.Synapse.Analytics.Utils;\r\n",
 					"\r\n",
-					"public static string searchServiceName = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\",\"LaborRejectionRecommendation-SearchServiceName\", \"LMT_KeyVault_Dev\");\r\n",
-					"public static string searchIndex = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\",\"LaborRejectionRecommendation-SearchIndex\", \"LMT_KeyVault_Dev\");\r\n",
-					"public static string KeyCol = TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\",\"LaborRejectionRecommendation-SearchKeyColumn\", \"LMT_KeyVault_Dev\");\r\n",
-					"public static string apiKey =TokenLibrary.getSecret(\"LMT-KV-DEV-EASTUS\",\"LaborRejectionRecommendation-SearchApiKey\", \"LMT_KeyVault_Dev\");\r\n",
+					"public static string searchServiceName = TokenLibrary.getSecret(\"LMT-KV-UAT-EASTUS\", \"LaborRejectionRecommendation-SearchServiceName\", \"LMT_KeyVault_Uat\");\r\n",
+					"public static string searchIndex = TokenLibrary.getSecret(\"LMT-KV-UAT-EASTUS\", \"LaborRejectionRecommendation-SearchIndex\", \"LMT_KeyVault_Uat\");\r\n",
+					"public static string KeyCol = TokenLibrary.getSecret(\"LMT-KV-UAT-EASTUS\", \"LaborRejectionRecommendation-SearchKeyColumn\", \"LMT_KeyVault_Uat\");\r\n",
+					"public static string apiKey =TokenLibrary.getSecret(\"LMT-KV-UAT-EASTUS\", \"LaborRejectionRecommendation-SearchApiKey\", \"LMT_KeyVault_Uat\");\r\n",
 					"\r\n",
 					"while (true)\r\n",
 					"{\r\n",
@@ -111,6 +114,7 @@
 					"var serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(apiKey));\r\n",
 					"serviceClient.Indexers.Run(\"idxr-rejectionrecommendation\");            "
 				],
+				"attachments": null,
 				"execution_count": null
 			}
 		]
